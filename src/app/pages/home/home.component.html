@@ -1,0 +1,110 @@
+<div class="card">
+  <p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="openNew()"></button>
+        <button pButton pRipple label="Edit" icon="pi pi-id-card" class="p-button-success p-mr-2" [disabled]="!selectedItems" (click)="openEdit()"></button>
+        <button pButton pRipple label="Del" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedItem()" [disabled]="!selectedItems"></button>
+    </ng-template>    
+  </p-toolbar>
+  <h5>Lista de Items</h5>
+  <p-table #dt1 [value]="items" selectionMode="single" [(selection)]="selectedItems" dataKey="accessURL" styleClass="p-datatable-customers"
+      [rows]="5" [paginator]="true" stateStorage="local" stateKey="statedemo-local">
+      <ng-template pTemplate="header">
+          <tr>              
+              <th pSortableColumn="_about">About <p-sortIcon field="_about"></p-sortIcon></th>
+              <th pSortableColumn="accessURL">Access URL <p-sortIcon field="accessURL"></p-sortIcon></th>
+              <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
+          </tr>
+          <tr>
+              <th>
+                  <input pInputText type="text" (input)="dt1.filter($event.target.value, '_about', 'contains')" [value]="dt1.filters['_about']?.value" placeholder="Search by Title" class="p-column-filter">
+              </th>
+              <th>
+                  <input pInputText type="text" (input)="dt1.filter($event.target.value, 'accessURL', 'contains')" [value]="dt1.filters['accessURL']?.value" placeholder="Search by Access URL" class="p-column-filter">
+              </th>
+              <th>
+                  <input pInputText type="text" (input)="dt1.filter($event.target.value, 'title', 'contains')" [value]="dt1.filters['title']?.value" placeholder="Search by Title" class="p-column-filter">
+              </th>              
+          </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-items>
+          <tr [pSelectableRow]="items">
+              <td>                  
+                  {{items._about}}
+              </td>
+              <td>
+                  {{items.accessURL}}
+              </td>
+              <td>
+                  {{items.title}}
+              </td>
+          </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+          <tr>
+              <td colspan="4">No customers found.</td>
+          </tr>
+      </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="itemDialog" [style]="{width: '450px'}" header="Items Details" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">        
+        <form [formGroup]="itemsForm">
+            <div class="p-field">
+                <label for="name">Title</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    id="title" 
+                    [(ngModel)]="item.title" 
+                    formControlName="title" 
+                    required 
+                    [ngClass]="{ 'is-invalid': f.title.invalid && (f.title.dirty || f.title.touched) }"
+                    autofocus />            
+                    <div *ngIf="f.title.errors && (f.title.dirty || f.title.touched)" class="invalid-feedback">
+                        <div>El títutlo es requerido</div>
+                    </div>
+            </div>
+            <div class="p-field">
+                <label for="description">About</label>
+                <textarea 
+                    id="about"
+                    pInputTextarea 
+                    [(ngModel)]="item._about" 
+                    formControlName="_about" 
+                    [ngClass]="{ 'is-invalid': f._about.invalid && (f._about.dirty || f._about.touched) }"
+                    required 
+                    rows="3"                     
+                    cols="20"></textarea>                
+                    <div *ngIf="f._about.errors && (f._about.dirty || f._about.touched)" class="invalid-feedback">
+                        <div>el campo es requerido</div>
+                    </div>
+            </div>
+            <div class="p-field">
+                <label for="description">Access URL</label>
+                <textarea 
+                    id="accessURL" 
+                    pInputTextarea 
+                    [(ngModel)]="item.accessURL" 
+                    formControlName="accessURL" 
+                    [ngClass]="{ 'is-invalid': f.accessURL.invalid && (f.accessURL.dirty || f.accessURL.touched) }"
+                    required 
+                    rows="3" 
+                    cols="20"></textarea>                
+                    <div *ngIf="f.accessURL.errors && (f.accessURL.dirty || f.accessURL.touched)" class="invalid-feedback">
+                        <div>La URL es requerida</div>
+                    </div>
+            </div>
+        </form>        
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="itemDialog = false;"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" [disabled]="!itemsForm.valid" (click)="isEdit === true ? updateItem() : saveItem()"></button>
+    </ng-template>
+</p-dialog>
+
+<ngx-ui-loader></ngx-ui-loader>
+<p-toast></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
